@@ -1,0 +1,36 @@
+# Python / Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+*.py[cod]
+__pycache__/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Environment & Credentials
+.env
+*.local
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Model artifacts (ignore binary outputs, keep folder structure)
+models/*.joblib
+models/*.pkl
+models/*.pth
+models/*.h5
+!models/.gitkeep
