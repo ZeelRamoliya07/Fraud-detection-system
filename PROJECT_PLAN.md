@@ -6,6 +6,7 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 
 ## Phase 1 — Project Foundation
 
+- **Status:** Completed [x]
 - **Objective:** Establish a clean, standardized, and modular project directory structure, dependencies, and documentation.
 - **Main Tasks:**
   - Create directory layout (`data/`, `notebooks/`, `src/`, `api/`, `models/`, `tests/`).
@@ -19,9 +20,10 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 
 ## Phase 2 — Dataset & Exploratory Data Analysis (EDA)
 
+- **Status:** Completed [x]
 - **Objective:** Acquire the transaction dataset and analyze its statistical properties, feature distributions, and anomaly patterns.
 - **Main Tasks:**
-  - Ingest raw dataset into `data/raw/`.
+  - Ingest raw dataset into `data/raw/creditcard.csv`.
   - Perform univariate and multivariate data exploration in `notebooks/01_eda.ipynb`.
   - Inspect class imbalance ratio (fraud vs. non-fraud).
   - Analyze feature correlations, distributions, missing values, and outliers.
@@ -31,18 +33,23 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 
 ## Phase 3 — Data Preprocessing & Feature Engineering
 
-- **Objective:** Clean raw data, handle missing values/outliers, scale features, and build feature engineering utilities.
+- **Status:** Completed [x]
+- **Objective:** Clean raw data, handle duplicates, scale features, prevent data leakage, and build modular preprocessing pipelines.
 - **Main Tasks:**
-  - Implement data cleaning routines in `src/data/cleaning.py`.
-  - Implement feature transformations and scaling pipelines in `src/features/build_features.py`.
-  - Split dataset into train, validation, and test sets with stratification.
-  - Save processed data artifacts into `data/processed/`.
-- **Expected Output:** Clean, transformed, and reproducible datasets along with reusable preprocessing functions.
+  - Analyze duplicate rows (1,081 duplicates: 1,062 Legitimate, 19 Fraud).
+  - Build data validation and schema checking functions in `src/data/preprocessing.py`.
+  - Implement feature/target separation (`Class` target).
+  - Perform 80/20 stratified train/test split to preserve class imbalance.
+  - Build Scikit-Learn compatible `FraudDataPreprocessor` (`RobustScaler` for `Time` & `Amount`, passthrough for `V1-V28`).
+  - Fit preprocessor strictly on training data to prevent data leakage.
+  - Write automated pytest suite in `tests/test_preprocessing.py`.
+- **Expected Output:** Reusable preprocessing module, leakage-free train/test split pipeline, and passing test suite.
 
 ---
 
 ## Phase 4 — Baseline Model
 
+- **Status:** Planned [ ]
 - **Objective:** Build a simple, interpretable baseline model to establish benchmark performance metrics.
 - **Main Tasks:**
   - Train a baseline Classifier (e.g., Logistic Regression) in `notebooks/02_baseline_model.ipynb`.
@@ -54,6 +61,7 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 
 ## Phase 5 — Model Comparison & Selection
 
+- **Status:** Planned [ ]
 - **Objective:** Train and systematically evaluate multiple candidate ML models to identify the best performer.
 - **Main Tasks:**
   - Train algorithms including Decision Trees, Random Forests, and Gradient Boosting models.
@@ -66,6 +74,7 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 
 ## Phase 6 — Final Model & Evaluation
 
+- **Status:** Planned [ ]
 - **Objective:** Train the final chosen model on complete training data and validate on held-out test data.
 - **Main Tasks:**
   - Finalize hyperparameters for the top-performing model.
@@ -78,6 +87,7 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 
 ## Phase 7 — Prediction Pipeline
 
+- **Status:** Planned [ ]
 - **Objective:** Build an end-to-end programmatic inference pipeline for single and batch predictions.
 - **Main Tasks:**
   - Create prediction handler in `src/models/predict.py`.
@@ -89,6 +99,7 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 
 ## Phase 8 — FastAPI Integration
 
+- **Status:** Planned [ ]
 - **Objective:** Expose the fraud detection model via a performant REST API.
 - **Main Tasks:**
   - Define input/output schema models using Pydantic in `api/schemas.py`.
@@ -101,6 +112,7 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 
 ## Phase 9 — Frontend Integration
 
+- **Status:** Planned [ ]
 - **Objective:** Build a user-facing dashboard/interface to demonstrate live transaction scoring.
 - **Main Tasks:**
   - Design an interactive web interface for inputting transaction details.
@@ -112,9 +124,10 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 
 ## Phase 10 — Testing & Quality Assurance
 
+- **Status:** Planned [ ]
 - **Objective:** Ensure project robustness through automated unit and integration tests.
 - **Main Tasks:**
-  - Write unit tests for data preprocessing and feature transformations in `tests/test_features.py`.
+  - Write unit tests for data preprocessing and feature transformations in `tests/test_preprocessing.py`.
   - Write unit tests for prediction pipeline in `tests/test_prediction.py`.
   - Write API endpoint integration tests using FastAPI `TestClient` in `tests/test_api.py`.
   - Run pytest suite and verify code quality.
@@ -124,6 +137,7 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 
 ## Phase 11 — Documentation & Deployment
 
+- **Status:** Planned [ ]
 - **Objective:** Finalize project documentation and deployment instructions.
 - **Main Tasks:**
   - Update `README.md` with final results, evaluation metrics, and API instructions.
