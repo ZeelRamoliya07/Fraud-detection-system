@@ -49,25 +49,28 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 
 ## Phase 4 — Baseline Model
 
-- **Status:** Planned [ ]
-- **Objective:** Build a simple, interpretable baseline model to establish benchmark performance metrics.
+- **Status:** Completed [x]
+- **Objective:** Build and evaluate Logistic Regression as the baseline classification model under unweighted and class-weighted configurations.
 - **Main Tasks:**
-  - Train a baseline Classifier (e.g., Logistic Regression) in `notebooks/02_baseline_model.ipynb`.
-  - Evaluate baseline performance using Confusion Matrix, Precision, Recall, F1-Score, and ROC-AUC.
-  - Implement basic model training script in `src/models/train.py`.
-- **Expected Output:** Baseline performance metrics and a benchmark model checkpoint.
+  - Build baseline model pipeline constructor in `src/models/baseline.py`.
+  - Build evaluation module (`src/models/evaluate.py`) calculating Precision, Recall, F1, PR-AUC, ROC-AUC, and Confusion Matrices.
+  - Train Experiment A (`LogisticRegression`, `class_weight=None`).
+  - Train Experiment B (`LogisticRegression`, `class_weight='balanced'`).
+  - Evaluate both experiments on held-out test data in `notebooks/02_baseline_model.ipynb`.
+  - Serialize baseline pipelines to `models/logistic_regression_baseline.joblib` and `models/logistic_regression_balanced.joblib`.
+  - Write unit tests in `tests/test_baseline.py`.
+- **Expected Output:** Serialized baseline pipelines, comparison table, confusion matrices, PR/ROC curves, and passing test suite.
 
 ---
 
 ## Phase 5 — Model Comparison & Selection
 
 - **Status:** Planned [ ]
-- **Objective:** Train and systematically evaluate multiple candidate ML models to identify the best performer.
+- **Objective:** Train and systematically evaluate multiple candidate ML models (e.g. Decision Trees, Random Forests, Gradient Boosting) to identify the top performer.
 - **Main Tasks:**
-  - Train algorithms including Decision Trees, Random Forests, and Gradient Boosting models.
-  - Experiment with imbalance handling techniques (e.g., class weight adjustment, SMOTE/undersampling if applicable).
+  - Train non-linear ensemble classifiers.
+  - Compare models across PR-AUC, Recall, Precision, and ROC-AUC metrics against Phase 4 baselines.
   - Perform hyperparameter tuning using cross-validation.
-  - Compare models across PR-AUC, Recall, Precision, and ROC-AUC metrics.
 - **Expected Output:** Comparative model evaluation report and selection of the champion algorithm.
 
 ---
@@ -127,7 +130,7 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 - **Status:** Planned [ ]
 - **Objective:** Ensure project robustness through automated unit and integration tests.
 - **Main Tasks:**
-  - Write unit tests for data preprocessing and feature transformations in `tests/test_preprocessing.py`.
+  - Maintain unit tests for data preprocessing and baseline models.
   - Write unit tests for prediction pipeline in `tests/test_prediction.py`.
   - Write API endpoint integration tests using FastAPI `TestClient` in `tests/test_api.py`.
   - Run pytest suite and verify code quality.
