@@ -65,26 +65,29 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 
 ## Phase 5 — Model Comparison & Selection
 
-- **Status:** Planned [ ]
-- **Objective:** Train and systematically evaluate multiple candidate ML models (e.g. Decision Trees, Random Forests, Gradient Boosting) to identify the top performer.
+- **Status:** Completed [x]
+- **Objective:** Train and systematically evaluate non-linear tree-based models (Decision Tree and Random Forest) against Phase 4 baselines.
 - **Main Tasks:**
-  - Train non-linear ensemble classifiers.
-  - Compare models across PR-AUC, Recall, Precision, and ROC-AUC metrics against Phase 4 baselines.
-  - Perform hyperparameter tuning using cross-validation.
-- **Expected Output:** Comparative model evaluation report and selection of the champion algorithm.
+  - Create tree model pipeline builders in `src/models/trees.py`.
+  - Train `DecisionTreeClassifier(class_weight='balanced', max_depth=10)`.
+  - Train `RandomForestClassifier(n_estimators=100, class_weight='balanced', max_depth=10)`.
+  - Compare 4 model configurations on held-out test data in `notebooks/03_model_comparison.ipynb`.
+  - Extract feature importance rankings (`feature_importances_`) for model interpretability.
+  - Serialize tree pipelines to `models/decision_tree.joblib` and `models/random_forest.joblib`.
+  - Write unit test suite in `tests/test_trees.py`.
+- **Expected Output:** Full 4-model comparison table, feature importance plots, serialized tree pipelines, and passing unit tests.
 
 ---
 
 ## Phase 6 — Final Model & Evaluation
 
 - **Status:** Planned [ ]
-- **Objective:** Train the final chosen model on complete training data and validate on held-out test data.
+- **Objective:** Finalize model selection, conduct threshold tuning / hyperparameter evaluation on validation data, and perform final assessment on test data.
 - **Main Tasks:**
-  - Finalize hyperparameters for the top-performing model.
-  - Evaluate model performance on the unseen test set.
-  - Generate final performance plots (ROC Curve, Precision-Recall Curve, Confusion Matrix).
-  - Serialize model pipeline and metadata artifact into `models/fraud_detection_model.joblib`.
-- **Expected Output:** Serialized production model artifact and comprehensive evaluation metrics.
+  - Select optimal model architecture based on PR-AUC and Precision/Recall requirements.
+  - Tune classification probability thresholds to balance Precision and Recall for production deployment.
+  - Serialize final champion model artifact and pipeline metadata.
+- **Expected Output:** Finalized production model artifact and deployment metrics.
 
 ---
 
@@ -130,7 +133,7 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 - **Status:** Planned [ ]
 - **Objective:** Ensure project robustness through automated unit and integration tests.
 - **Main Tasks:**
-  - Maintain unit tests for data preprocessing and baseline models.
+  - Maintain unit tests for data preprocessing, baseline models, and tree models.
   - Write unit tests for prediction pipeline in `tests/test_prediction.py`.
   - Write API endpoint integration tests using FastAPI `TestClient` in `tests/test_api.py`.
   - Run pytest suite and verify code quality.

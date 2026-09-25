@@ -1,7 +1,7 @@
 # Fraud Detection System
 
-> **Status:** Phase 4 — Baseline Machine Learning Model Completed  
-> *Note: Phases 1–4 (Foundation, EDA, Preprocessing, Baseline Models) are complete. Model comparison with tree ensembles will occur in Phase 5.*
+> **Status:** Phase 5 — Nonlinear Model Comparison Completed  
+> *Note: Phases 1–5 (Foundation, EDA, Preprocessing, Baseline Models, and Tree Model Comparison) are complete.*
 
 ## Overview
 
@@ -20,18 +20,20 @@ Financial fraud presents a critical threat to modern financial institutions, lea
 
 ---
 
-## Baseline Model Performance (Phase 4 Results)
+## Model Comparison Summary (Phase 5 Results)
 
-Evaluated on unseen test set (`56,746` transactions: `56,651` Legitimate, `95` Fraud):
+Evaluated on unseen test set (`56,746` total transactions: `56,651` Legitimate, `95` Fraud):
 
 | Model | Precision | Recall | F1-Score | PR-AUC | ROC-AUC | Accuracy | TP (Fraud Caught) | FN (Fraud Missed) | FP (False Alarms) | TN (Legit Correct) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Logistic Regression (Unweighted)** | **0.8615** | 0.5895 | **0.7000** | **0.6951** | 0.9575 | 99.92% | 56 | 39 | **9** | 56,642 |
-| **Logistic Regression (Balanced)** | 0.0562 | **0.8737** | 0.1057 | 0.6719 | **0.9657** | 97.52% | **83** | **12** | 1,393 | 55,258 |
+| **Logistic Regression (Unweighted)** | **0.8615** | 0.5895 | 0.7000 | 0.6951 | 0.9575 | 99.92% | 56 | 39 | **9** | 56,642 |
+| **Logistic Regression (Balanced)** | 0.0562 | **0.8737** | 0.1057 | 0.6719 | 0.9657 | 97.52% | **83** | **12** | 1,393 | 55,258 |
+| **Decision Tree (Balanced)** | 0.2291 | 0.7789 | 0.3541 | 0.5330 | 0.8887 | 99.52% | 74 | 21 | 249 | 56,402 |
+| **Random Forest (Balanced)** | 0.7526 | 0.7684 | **0.7604** | **0.7829** | **0.9742** | **99.92%** | 73 | 22 | 24 | **56,627** |
 
-### Key Technical Findings:
-- **Unweighted Logistic Regression:** Provides high Precision (86.15%) with very few false alarms (9 FP), but misses 39 out of 95 fraud cases (58.95% Recall).
-- **Class-Weighted (`class_weight='balanced'`):** Drastically improves Recall from 58.95% to **87.37%** (catching 83 out of 95 fraud cases), but penalizing majority loss equally causes a surge in false alarms (1,393 FP), dropping Precision to 5.62%.
+### Key Insights:
+1. **Random Forest Achieves Highest PR-AUC (0.7829):** Random Forest significantly outperforms baseline models by capturing non-linear feature interactions. It catches **73 out of 95** fraud cases (76.84% Recall) while maintaining high Precision (75.26%) with only 24 false alarms.
+2. **Feature Importances:** Tree models reveal that PCA features `V14`, `V12`, `V4`, `V10`, and `V17` contribute most significantly to predictive decisions.
 
 ---
 
@@ -46,7 +48,8 @@ fraud-detection-system/
 │
 ├── notebooks/             # Jupyter notebooks
 │   ├── 01_eda.ipynb       # Phase 2 Exploratory Data Analysis
-│   └── 02_baseline_model.ipynb # Phase 4 Baseline Model Experiments
+│   ├── 02_baseline_model.ipynb # Phase 4 Baseline Model Experiments
+│   └── 03_model_comparison.ipynb # Phase 5 Tree Model Comparison
 │
 ├── src/                   # Source code package
 │   ├── __init__.py
@@ -56,16 +59,20 @@ fraud-detection-system/
 │   ├── models/            # Model training & evaluation modules
 │   │   ├── __init__.py
 │   │   ├── baseline.py    # Baseline Logistic Regression pipeline builder
+│   │   ├── trees.py       # Decision Tree & Random Forest pipeline builders
 │   │   └── evaluate.py    # Metrics evaluation module (Precision, Recall, PR-AUC, ROC-AUC)
 │   └── utils/             # Helper utilities
 │
 ├── models/                # Serialized trained model pipelines (.joblib)
 │   ├── logistic_regression_baseline.joblib
-│   └── logistic_regression_balanced.joblib
+│   ├── logistic_regression_balanced.joblib
+│   ├── decision_tree.joblib
+│   └── random_forest.joblib
 │
 ├── tests/                 # Unit and integration test suites
 │   ├── test_preprocessing.py
-│   └── test_baseline.py   # Baseline model & evaluation unit tests
+│   ├── test_baseline.py
+│   └── test_trees.py      # Tree model unit tests
 │
 ├── README.md              # Project documentation overview
 ├── PROJECT_PLAN.md        # Detailed phase-by-phase development plan
@@ -81,8 +88,8 @@ fraud-detection-system/
 - [x] **Phase 1 — Project Foundation**
 - [x] **Phase 2 — Dataset & Exploratory Data Analysis**
 - [x] **Phase 3 — Data Preprocessing & Validation**
-- [x] **Phase 4 — Baseline Machine Learning Model** *(Current)*
-- [ ] Phase 5 — Model Comparison & Selection
+- [x] **Phase 4 — Baseline Machine Learning Model**
+- [x] **Phase 5 — Nonlinear Model Comparison** *(Current)*
 - [ ] Phase 6 — Final Model & Evaluation
 - [ ] Phase 7 — Prediction Pipeline
 - [ ] Phase 8 — FastAPI Integration
