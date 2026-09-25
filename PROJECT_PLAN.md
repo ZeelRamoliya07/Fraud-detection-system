@@ -79,15 +79,18 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 
 ---
 
-## Phase 6 — Final Model & Evaluation
+## Phase 6 — Decision Threshold Optimization
 
-- **Status:** Planned [ ]
-- **Objective:** Finalize model selection, conduct threshold tuning / hyperparameter evaluation on validation data, and perform final assessment on test data.
+- **Status:** Completed [x]
+- **Objective:** Optimize the probability decision boundary for the champion Random Forest pipeline without retraining.
 - **Main Tasks:**
-  - Select optimal model architecture based on PR-AUC and Precision/Recall requirements.
-  - Tune classification probability thresholds to balance Precision and Recall for production deployment.
-  - Serialize final champion model artifact and pipeline metadata.
-- **Expected Output:** Finalized production model artifact and deployment metrics.
+  - Build threshold optimization utilities (`src/models/threshold.py`) and central configuration (`src/config.py`).
+  - Load `models/random_forest.joblib` and predict continuous test probabilities `predict_proba(X_test)[:, 1]`.
+  - Conduct threshold sweep across probabilities `0.10` to `0.90` in `notebooks/04_threshold_optimization.ipynb`.
+  - Analyze trade-offs between Precision, Recall, F1-Score, False Positives, and False Negatives.
+  - Select optimal operational threshold (`0.70`, achieving **F1 = 0.8046**, **Precision = 88.61%**, **Recall = 73.68%**, and reducing False Positives from 24 to 9).
+  - Write unit tests in `tests/test_threshold.py`.
+- **Expected Output:** Threshold sweep DataFrame, trade-off visualizations, operational threshold rationale, config constant `OPTIMAL_THRESHOLD = 0.70`, and passing unit test suite.
 
 ---
 
@@ -97,7 +100,7 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 - **Objective:** Build an end-to-end programmatic inference pipeline for single and batch predictions.
 - **Main Tasks:**
   - Create prediction handler in `src/models/predict.py`.
-  - Implement pipeline loading, input validation, feature transformation, and model scoring.
+  - Implement pipeline loading, input validation, feature transformation, and model scoring using `OPTIMAL_THRESHOLD`.
   - Verify prediction outputs and probability scores on sample inputs.
 - **Expected Output:** Clean, reusable Python prediction API for programmatic execution.
 
@@ -133,7 +136,7 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 - **Status:** Planned [ ]
 - **Objective:** Ensure project robustness through automated unit and integration tests.
 - **Main Tasks:**
-  - Maintain unit tests for data preprocessing, baseline models, and tree models.
+  - Maintain unit tests for preprocessing, baseline models, tree models, and threshold optimization.
   - Write unit tests for prediction pipeline in `tests/test_prediction.py`.
   - Write API endpoint integration tests using FastAPI `TestClient` in `tests/test_api.py`.
   - Run pytest suite and verify code quality.
