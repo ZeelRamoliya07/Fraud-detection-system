@@ -1,11 +1,11 @@
 # Fraud Detection System
 
-> **Status:** Phase 6 — Decision Threshold Optimization Completed  
-> *Note: Phases 1–6 (Foundation, EDA, Preprocessing, Baseline Models, Tree Model Comparison, and Threshold Optimization) are complete.*
+> **Status:** Phase 7 — FastAPI Prediction API Completed  
+> *Note: Phases 1–7 (Foundation, EDA, Preprocessing, Baseline Models, Tree Model Comparison, Threshold Optimization, and FastAPI Prediction API) are complete.*
 
 ## Overview
 
-The **Fraud Detection System** is an end-to-end machine learning project designed to detect fraudulent financial transactions. It demonstrates core ML engineering fundamentals—from exploratory data analysis and feature engineering to model comparison, threshold optimization, dynamic API deployment with FastAPI, and automated testing.
+The **Fraud Detection System** is an end-to-end machine learning project designed to detect fraudulent financial transactions. It demonstrates core ML engineering fundamentals—from exploratory data analysis and feature engineering to model comparison, threshold optimization, dynamic REST API deployment with FastAPI, and automated testing.
 
 This repository serves as Project 3 in an AI Engineering portfolio focusing on core ML fundamentals, robust system architecture, and production-ready code design.
 
@@ -20,26 +20,80 @@ Financial fraud presents a critical threat to modern financial institutions, lea
 
 ---
 
+## Prediction REST API (Phase 7 Implementation)
+
+The system exposes a high-performance REST API using **FastAPI**, **Uvicorn**, and **Pydantic**. The API loads the serialized `models/random_forest.joblib` pipeline once at application startup and applies the optimized decision threshold (`0.70`).
+
+### Starting the API Server
+
+```bash
+# Activate virtual environment
+.\.venv\Scripts\Activate.ps1
+
+# Start FastAPI server with Uvicorn
+uvicorn api.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Interactive OpenAPI / Swagger Documentation is available at:
+- **Swagger UI:** `http://127.0.0.1:8000/docs`
+- **ReDoc UI:** `http://127.0.0.1:8000/redoc`
+
+---
+
+### REST API Endpoints
+
+#### 1. `GET /health`
+Lightweight health check verifying that the API service is active.
+
+**Response `(HTTP 200 OK)`:**
+```json
+{
+  "status": "healthy"
+}
+```
+
+#### 2. `POST /predict`
+Evaluates fraud probability and risk classification for a transaction payload containing 30 input features (`Time`, `V1`..`V28`, `Amount`).
+
+**Example Request Payload:**
+```json
+{
+  "Time": 406.0,
+  "V1": -2.3122, "V2": 1.9519, "V3": -1.6098, "V4": 3.9979, "V5": -0.5221,
+  "V6": -1.4265, "V7": -2.5373, "V8": 1.3916, "V9": -2.7700, "V10": -2.7722,
+  "V11": 3.2020, "V12": -2.8999, "V13": -0.5952, "V14": -4.2892, "V15": 0.3897,
+  "V16": -1.1407, "V17": -2.8300, "V18": -0.0168, "V19": 0.4169, "V20": 0.1269,
+  "V21": 0.5172, "V22": -0.0350, "V23": -0.4652, "V24": 0.3201, "V25": 0.0445,
+  "V26": 0.1778, "V27": 0.2611, "V28": -0.1432,
+  "Amount": 100.0
+}
+```
+
+**Example Response Payload `(HTTP 200 OK)`:**
+```json
+{
+  "fraud_probability": 0.83,
+  "is_fraud": true,
+  "risk_level": "HIGH",
+  "threshold": 0.70
+}
+```
+
+### Risk Level Mapping:
+- **`LOW`**: Fraud Probability < `0.30`
+- **`MEDIUM`**: `0.30` <= Fraud Probability < `0.70`
+- **`HIGH`**: Fraud Probability >= `0.70`
+
+---
+
 ## Decision Threshold Optimization (Phase 6 Results)
 
-Evaluated on unseen test set (`56,746` total transactions: `56,651` Legitimate, `95` Fraud) using continuous probabilities from our champion **Random Forest** pipeline:
-
-### Threshold Sweep Results:
+Evaluated on unseen test set (`56,746` transactions) using continuous probabilities from our champion **Random Forest** pipeline:
 
 | Threshold | Precision | Recall | F1-Score | Accuracy | TP (Fraud Caught) | FN (Fraud Missed) | FP (False Alarms) | TN (Legit Correct) |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| 0.10 | 0.0712 | **0.8632** | 0.1316 | 98.09% | **82** | **13** | 1,069 | 55,582 |
-| 0.20 | 0.2888 | 0.8421 | 0.4301 | 99.63% | 80 | 15 | 197 | 56,454 |
-| 0.35 | 0.6063 | 0.8105 | 0.6937 | 99.88% | 77 | 18 | 50 | 56,601 |
 | 0.50 *(Default)* | 0.7526 | 0.7684 | 0.7604 | 99.92% | 73 | 22 | 24 | 56,627 |
 | **0.70 (Selected)** | **0.8861** | **0.7368** | **0.8046** | **99.94%** | **70** | **25** | **9** | **56,642** |
-| 0.85 | 0.8904 | 0.6842 | 0.7738 | 99.93% | 65 | 30 | 8 | 56,643 |
-
-### Why Threshold 0.70 Was Selected:
-1. **Maximum F1-Score (0.8046):** Threshold `0.70` achieves the highest overall harmonic mean of Precision and Recall on unseen test data.
-2. **62.5% Reduction in False Alarms:** False Positives drop sharply from **24 to 9** compared to default 0.50 (increasing Precision from **75.26% to 88.61%**).
-3. **High Fraud Catch Rate:** Retains strong detection capability (**70 out of 95** fraud cases caught, 73.68% Recall).
-4. **PR-AUC Invariance:** PR-AUC remains constant at **0.7829** across all decision thresholds as it evaluates ranking across all operational boundaries.
 
 ---
 
@@ -48,9 +102,15 @@ Evaluated on unseen test set (`56,746` total transactions: `56,651` Legitimate, 
 ```
 fraud-detection-system/
 │
+├── api/                   # REST API package
+│   ├── __init__.py
+│   ├── main.py            # FastAPI entry point (/health, /predict)
+│   ├── predictor.py       # Model inference service component
+│   └── schemas.py         # Pydantic request & response schemas
+│
 ├── data/                  # Data directory
 │   ├── raw/               # Raw transaction dataset (creditcard.csv)
-│   └── processed/         # Cleaned, processed datasets
+│   └── processed/         # Processed datasets
 │
 ├── notebooks/             # Jupyter notebooks
 │   ├── 01_eda.ipynb       # Phase 2 Exploratory Data Analysis
@@ -60,17 +120,16 @@ fraud-detection-system/
 │
 ├── src/                   # Source code package
 │   ├── __init__.py
-│   ├── config.py          # Configuration constants (DEFAULT_THRESHOLD=0.50, OPTIMAL_THRESHOLD=0.70)
-│   ├── data/              # Ingestion, validation & preprocessing module
+│   ├── config.py          # Configuration constants (OPTIMAL_THRESHOLD=0.70)
+│   ├── data/              # Preprocessing & validation module
 │   │   ├── __init__.py
 │   │   └── preprocessing.py # Preprocessing pipeline & RobustScaler transformer
-│   ├── models/            # Model training, evaluation & threshold modules
-│   │   ├── __init__.py
-│   │   ├── baseline.py    # Baseline Logistic Regression pipeline builder
-│   │   ├── trees.py       # Decision Tree & Random Forest pipeline builders
-│   │   ├── evaluate.py    # Metrics evaluation module
-│   │   └── threshold.py   # Threshold sweep & decision boundary utilities
-│   └── utils/             # Helper utilities
+│   └── models/            # Model training & evaluation modules
+│       ├── __init__.py
+│       ├── baseline.py    # Baseline Logistic Regression pipeline builder
+│       ├── trees.py       # Decision Tree & Random Forest pipeline builders
+│       ├── evaluate.py    # Metrics evaluation module
+│       └── threshold.py   # Threshold sweep & decision boundary utilities
 │
 ├── models/                # Serialized trained model pipelines (.joblib)
 │   ├── logistic_regression_baseline.joblib
@@ -82,7 +141,8 @@ fraud-detection-system/
 │   ├── test_preprocessing.py
 │   ├── test_baseline.py
 │   ├── test_trees.py
-│   └── test_threshold.py  # Threshold optimization unit tests
+│   ├── test_threshold.py
+│   └── test_api.py        # REST API integration & validation tests
 │
 ├── README.md              # Project documentation overview
 ├── PROJECT_PLAN.md        # Detailed phase-by-phase development plan
@@ -100,9 +160,8 @@ fraud-detection-system/
 - [x] **Phase 3 — Data Preprocessing & Validation**
 - [x] **Phase 4 — Baseline Machine Learning Model**
 - [x] **Phase 5 — Nonlinear Model Comparison**
-- [x] **Phase 6 — Decision Threshold Optimization** *(Current)*
-- [ ] Phase 7 — Prediction Pipeline
-- [ ] Phase 8 — FastAPI Integration
-- [ ] Phase 9 — Frontend Integration
-- [ ] Phase 10 — Testing
-- [ ] Phase 11 — Documentation & Deployment
+- [x] **Phase 6 — Decision Threshold Optimization**
+- [x] **Phase 7 — FastAPI Prediction API** *(Current)*
+- [ ] Phase 8 — Frontend Integration
+- [ ] Phase 9 — Testing & Quality Assurance
+- [ ] Phase 10 — Documentation & Deployment

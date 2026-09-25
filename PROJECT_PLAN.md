@@ -94,32 +94,21 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 
 ---
 
-## Phase 7 — Prediction Pipeline
+## Phase 7 — FastAPI Prediction API
 
-- **Status:** Planned [ ]
-- **Objective:** Build an end-to-end programmatic inference pipeline for single and batch predictions.
+- **Status:** Completed [x]
+- **Objective:** Build a performant, validated REST API exposing the trained Random Forest pipeline with threshold-aware risk scoring.
 - **Main Tasks:**
-  - Create prediction handler in `src/models/predict.py`.
-  - Implement pipeline loading, input validation, feature transformation, and model scoring using `OPTIMAL_THRESHOLD`.
-  - Verify prediction outputs and probability scores on sample inputs.
-- **Expected Output:** Clean, reusable Python prediction API for programmatic execution.
+  - Define input/output schemas in `api/schemas.py` using Pydantic (30 input features, non-negative Amount/Time validation).
+  - Build `FraudPredictor` component in `api/predictor.py` loading `models/random_forest.joblib` once at startup and applying `OPTIMAL_THRESHOLD = 0.70`.
+  - Build FastAPI application in `api/main.py` with `GET /health` and `POST /predict` endpoints.
+  - Map predicted probabilities to application-level risk levels (`LOW`: <0.30, `MEDIUM`: 0.30–0.70, `HIGH`: >=0.70).
+  - Write comprehensive API unit & integration tests in `tests/test_api.py`.
+- **Expected Output:** Fully functional REST API with Swagger documentation (`/docs`), Pydantic validation, and 29 passing unit tests.
 
 ---
 
-## Phase 8 — FastAPI Integration
-
-- **Status:** Planned [ ]
-- **Objective:** Expose the fraud detection model via a performant REST API.
-- **Main Tasks:**
-  - Define input/output schema models using Pydantic in `api/schemas.py`.
-  - Build endpoints (`/health`, `/predict`, `/batch-predict`) in `api/main.py`.
-  - Implement request validation, error handling, and API logging.
-  - Test API endpoints locally using Uvicorn.
-- **Expected Output:** Fully operational FastAPI backend with interactive Swagger documentation.
-
----
-
-## Phase 9 — Frontend Integration
+## Phase 8 — Frontend Integration
 
 - **Status:** Planned [ ]
 - **Objective:** Build a user-facing dashboard/interface to demonstrate live transaction scoring.
@@ -131,25 +120,23 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 
 ---
 
-## Phase 10 — Testing & Quality Assurance
+## Phase 9 — Testing & Quality Assurance
 
 - **Status:** Planned [ ]
-- **Objective:** Ensure project robustness through automated unit and integration tests.
+- **Objective:** Maintain and expand automated unit and integration tests across the codebase.
 - **Main Tasks:**
-  - Maintain unit tests for preprocessing, baseline models, tree models, and threshold optimization.
-  - Write unit tests for prediction pipeline in `tests/test_prediction.py`.
-  - Write API endpoint integration tests using FastAPI `TestClient` in `tests/test_api.py`.
-  - Run pytest suite and verify code quality.
-- **Expected Output:** Comprehensive test suite passing with high coverage.
+  - Maintain unit test suites for preprocessing, models, thresholds, and REST endpoints.
+  - Execute pytest suite prior to deployment.
+- **Expected Output:** Fully tested, production-grade application codebase.
 
 ---
 
-## Phase 11 — Documentation & Deployment
+## Phase 10 — Documentation & Deployment
 
 - **Status:** Planned [ ]
 - **Objective:** Finalize project documentation and deployment instructions.
 - **Main Tasks:**
-  - Update `README.md` with final results, evaluation metrics, and API instructions.
+  - Update `README.md` with final results, evaluation metrics, and API usage instructions.
   - Document technical interview talking points and architectural decisions.
   - Prepare repository for public portfolio presentation.
 - **Expected Output:** Complete portfolio-grade open-source project repository.
