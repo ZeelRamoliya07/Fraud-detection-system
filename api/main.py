@@ -1,12 +1,13 @@
 """
 FastAPI REST API Main Entry Point for Fraud Detection System.
 
-Exposes real-time fraud prediction and health monitoring REST endpoints.
+Exposes real-time fraud prediction and health monitoring REST endpoints with CORS support.
 """
 
 from contextlib import asynccontextmanager
 from typing import Dict, Any
 from fastapi import FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from api.schemas import TransactionInput, PredictionResponse, HealthResponse
 from api.predictor import FraudPredictor
 
@@ -24,7 +25,6 @@ async def lifespan(app: FastAPI):
         predictor = FraudPredictor()
     except Exception as e:
         print(f"Error loading FraudPredictor during startup: {e}")
-        # Allow startup so health check or tests can inspect status, predictor remains None or raises on /predict
     yield
 
 
@@ -39,6 +39,22 @@ app = FastAPI(
     lifespan=lifespan,
     docs_url="/docs",
     redoc_url="/redoc"
+)
+
+# Explicit CORS configuration for frontend development servers
+ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
 )
 
 
@@ -67,7 +83,6 @@ def health_check() -> Dict[str, str]:
 def predict_fraud(transaction: TransactionInput) -> Dict[str, Any]:
     global predictor
     if predictor is None:
-        # Fallback initialization if lifespan wasn't triggered (e.g. TestClient without lifespan context)
         try:
             predictor = FraudPredictor()
         except Exception as e:

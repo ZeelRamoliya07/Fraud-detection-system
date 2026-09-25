@@ -108,15 +108,18 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 
 ---
 
-## Phase 8 — Frontend Integration
+## Phase 8 — React Frontend Integration
 
-- **Status:** Planned [ ]
-- **Objective:** Build a user-facing dashboard/interface to demonstrate live transaction scoring.
+- **Status:** Completed [x]
+- **Objective:** Build a clean, editorial/financial-tool React dashboard using Vite and Tailwind CSS to consume the FastAPI prediction API.
 - **Main Tasks:**
-  - Design an interactive web interface for inputting transaction details.
-  - Connect interface components to the FastAPI endpoint.
-  - Display fraud probability scores, risk classification, and transaction metrics.
-- **Expected Output:** Interactive web interface for real-time fraud prediction visualization.
+  - Configure explicit CORS middleware on FastAPI backend (`api/main.py`).
+  - Create React + Vite frontend application in `frontend/`.
+  - Build `TransactionForm` component with feature inputs (Time, Amount, V1–V28 feature grid, reset, and preset buttons for sample fraud vs. normal transactions).
+  - Build `PredictionResult` component displaying fraud probability (e.g. 88.61%), risk level badge (`LOW`, `MEDIUM`, `HIGH`), classification outcome, and decision threshold (70%).
+  - Build API service module (`src/services/api.js`) consuming `VITE_API_BASE_URL`.
+  - Write Vitest component unit tests (`src/test/App.test.jsx`).
+- **Expected Output:** Operational React dashboard with editorial design, zero raw ML logic in frontend, 5 passing Vitest tests, and 29 passing backend pytest tests.
 
 ---
 
@@ -125,8 +128,8 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 - **Status:** Planned [ ]
 - **Objective:** Maintain and expand automated unit and integration tests across the codebase.
 - **Main Tasks:**
-  - Maintain unit test suites for preprocessing, models, thresholds, and REST endpoints.
-  - Execute pytest suite prior to deployment.
+  - Maintain full test coverage across backend (`pytest`) and frontend (`vitest`).
+  - Execute test suite prior to deployment.
 - **Expected Output:** Fully tested, production-grade application codebase.
 
 ---
@@ -136,7 +139,7 @@ This document outlines the detailed 11-phase development roadmap for the **Fraud
 - **Status:** Planned [ ]
 - **Objective:** Finalize project documentation and deployment instructions.
 - **Main Tasks:**
-  - Update `README.md` with final results, evaluation metrics, and API usage instructions.
+  - Update `README.md` with final results, evaluation metrics, and API/frontend usage instructions.
   - Document technical interview talking points and architectural decisions.
   - Prepare repository for public portfolio presentation.
 - **Expected Output:** Complete portfolio-grade open-source project repository.
